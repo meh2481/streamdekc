@@ -32,9 +32,21 @@ HEIGHT = 64
 BORDER = 2
 
 i2c = board.I2C()
-display_bus = displayio.I2CDisplay(i2c, device_address=0x3c)
 
+# Init first display
+display_bus = displayio.I2CDisplay(i2c, device_address=0x3c)
 display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HEIGHT)
+# Swap to second display
+pin_a.value = True
+time.sleep(0.025)
+# Fakeout teardown of second display
+displayio.release_displays()
+# Init second display
+display_bus = displayio.I2CDisplay(i2c, device_address=0x3c)
+display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HEIGHT)
+# Swap back to first display
+pin_a.value = False
+time.sleep(0.025)
 
 # Make the display context
 splash = displayio.Group()
