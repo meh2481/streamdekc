@@ -7,8 +7,6 @@ import board
 import time
 from digitalio import DigitalInOut, Direction
 
-displayio.release_displays()
-
 # Init demuxer
 A = board.D10
 B = board.D9
@@ -25,12 +23,13 @@ pin_a.value = False
 pin_b.value = False
 pin_c.value = False
 
-# Init display
+time.sleep(0.025)
+displayio.release_displays()    # Normally this is done first, but the terminal out breaks the display if we don't mux select first.
 
+# Init display
 WIDTH = 128
 HEIGHT = 64
 BORDER = 2
-
 i2c = board.I2C()
 
 # Init first display
@@ -63,7 +62,7 @@ splash.append(bg_sprite)
 text1 = "First display"
 text_area = label.Label(terminalio.FONT, text=text1, color=0xFFFFFF, x=8, y=8)
 splash.append(text_area)
-text2 = "SH1107"
+text2 = "SSD1306-1"
 text_area2 = label.Label(
     terminalio.FONT, text=text2, scale=2, color=0xFFFFFF, x=9, y=44
 )
@@ -76,7 +75,7 @@ pin_a.value = True
 # Fakeout a full display redraw by changing the x location of the bg image
 splash.x = 1
 splash.x = 0
-text_area2.text = "SSD1306"
+text_area2.text = "SSD1306-2"
 text_area.text = "Second display"
 
 while True:
