@@ -1,11 +1,32 @@
-# import busio
+# Hardware: Adafruit Qt Py 2040
 import adafruit_displayio_ssd1306
 import displayio
 from adafruit_display_text import label
 import terminalio
 import board
+import time
+from digitalio import DigitalInOut, Direction
 
 displayio.release_displays()
+
+# Init demuxer
+A = board.D10
+B = board.D9
+C = board.D8
+
+pin_a = DigitalInOut(A)
+pin_a.direction = Direction.OUTPUT
+pin_b = DigitalInOut(B)
+pin_b.direction = Direction.OUTPUT
+pin_c = DigitalInOut(C)
+pin_c.direction = Direction.OUTPUT
+
+pin_a.value = False
+pin_b.value = False
+pin_c.value = False
+
+# Init display
+
 WIDTH = 128
 HEIGHT = 64
 BORDER = 2
@@ -19,37 +40,15 @@ display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HE
 splash = displayio.Group()
 display.show(splash)
 
+# Draw black background
 color_bitmap = displayio.Bitmap(WIDTH, HEIGHT, 1)
 color_palette = displayio.Palette(1)
-color_palette[0] = 0xFFFFFF  # White
-
+color_palette[0] = 0x0
 bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
 splash.append(bg_sprite)
 
-# Draw a smaller inner rectangle in black
-inner_bitmap = displayio.Bitmap(WIDTH - BORDER * 2, HEIGHT - BORDER * 2, 1)
-inner_palette = displayio.Palette(1)
-inner_palette[0] = 0x000000  # Black
-inner_sprite = displayio.TileGrid(
-    inner_bitmap, pixel_shader=inner_palette, x=BORDER, y=BORDER
-)
-splash.append(inner_sprite)
-
-# Draw some white squares
-sm_bitmap = displayio.Bitmap(8, 8, 1)
-sm_square = displayio.TileGrid(sm_bitmap, pixel_shader=color_palette, x=58, y=17)
-splash.append(sm_square)
-
-med_bitmap = displayio.Bitmap(16, 16, 1)
-med_square = displayio.TileGrid(med_bitmap, pixel_shader=color_palette, x=71, y=15)
-splash.append(med_square)
-
-lrg_bitmap = displayio.Bitmap(32, 32, 1)
-lrg_square = displayio.TileGrid(lrg_bitmap, pixel_shader=color_palette, x=91, y=28)
-splash.append(lrg_square)
-
-# Draw some label text
-text1 = "0123456789ABCDEF123456789AB"  # overly long to see where it clips
+# Label text
+text1 = "First display"
 text_area = label.Label(terminalio.FONT, text=text1, color=0xFFFFFF, x=8, y=8)
 splash.append(text_area)
 text2 = "SH1107"
@@ -57,6 +56,16 @@ text_area2 = label.Label(
     terminalio.FONT, text=text2, scale=2, color=0xFFFFFF, x=9, y=44
 )
 splash.append(text_area2)
+
+# Update the second display
+time.sleep(0.025) # Wait for i2c calls to first display to finish
+pin_a.value = True
+
+# Fakeout a full display redraw by changing the x location of the bg image
+splash.x = 1
+splash.x = 0
+text_area2.text = "SSD1306"
+text_area.text = "Second display"
 
 while True:
     pass
