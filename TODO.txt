@@ -1,0 +1,5 @@
+Test if 3.3V is logic high for a 5V circuit
+Attach 3.3V <-> 5V i2c converter
+Get sliding pots for analog input
+Reuse i2c selection pins for button selection also
+Find way to use 1 extra digital I/O pin
