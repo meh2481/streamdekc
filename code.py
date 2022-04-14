@@ -5,7 +5,7 @@ from adafruit_display_text import label
 import terminalio
 import board
 import time
-from digitalio import DigitalInOut, Direction
+from digitalio import DigitalInOut, Direction, Pull
 
 # Init demuxer
 A = board.D10
@@ -59,7 +59,7 @@ bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=
 splash.append(bg_sprite)
 
 # Label text
-text1 = "First display"
+text1 = "First display 0"
 text_area = label.Label(terminalio.FONT, text=text1, color=0xFFFFFF, x=8, y=8)
 splash.append(text_area)
 text2 = "SSD1306-1"
@@ -76,7 +76,49 @@ pin_a.value = True
 splash.x = 1
 splash.x = 0
 text_area2.text = "SSD1306-2"
-text_area.text = "Second display"
+text_area.text = "Second display 0"
 
+# Init pin for button I/O
+button_pin = board.D6
+button = DigitalInOut(button_pin)
+button.direction = Direction.INPUT
+button.pull = Pull.UP
+
+times_pressed_display_1 = 0
+times_pressed_display_2 = 0
+pressed_button_1 = False
+pressed_button_2 = False
+
+# Spin for a bit to give displays time to settle before swapping back and forth. idk why this is needed but the displays bork without it.
+start_time = time.monotonic()
 while True:
-    pass
+    if time.monotonic() - start_time > 0.5:
+        break
+
+# Main loop
+while True:
+    # Swap to button/display 1
+    pin_a.value = False
+    time.sleep(0.025)
+    if not button.value:
+        if not pressed_button_1:
+            times_pressed_display_1 += 1
+            # print(f'Times pressed button 1: {times_pressed_display_1}')
+            pressed_button_1 = True
+            text_area.text = f'First display {times_pressed_display_1}'
+            time.sleep(0.025)
+    else:
+        pressed_button_1 = False
+
+    # Swap to button/display 2
+    pin_a.value = True
+    time.sleep(0.025)
+    if not button.value:
+        if not pressed_button_2:
+            times_pressed_display_2 += 1
+            # print(f'Times pressed button 2: {times_pressed_display_2}')
+            pressed_button_2 = True
+            text_area.text = f'Second display {times_pressed_display_2}'
+            time.sleep(0.025)
+    else:
+        pressed_button_2 = False
