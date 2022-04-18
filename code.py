@@ -6,6 +6,10 @@ import terminalio
 import board
 import time
 from digitalio import DigitalInOut, Direction, Pull
+from analogio import AnalogIn
+
+# Init analog pins
+analog_in = [AnalogIn(board.A0), AnalogIn(board.A1), AnalogIn(board.A2), AnalogIn(board.A3)]
 
 # Init demuxer
 A = board.D10
@@ -95,6 +99,10 @@ while True:
     if time.monotonic() - start_time > 0.5:
         break
 
+analog_vals_smoothed = [
+    [0 for i in range(5)] for j in range(4)
+]
+
 # Main loop
 while True:
     # Swap to button/display 1
@@ -122,3 +130,10 @@ while True:
             time.sleep(0.025)
     else:
         pressed_button_2 = False
+
+    for i in range(4):
+        analog_vals_smoothed[i].append(analog_in[i].value)
+        analog_vals_smoothed[i].pop(0)
+        avg_val = sum(analog_vals_smoothed[i]) / len(analog_vals_smoothed[i]) / 65535
+        if i == 0:
+            print(f'Analog value: {round(avg_val, 2)}')
