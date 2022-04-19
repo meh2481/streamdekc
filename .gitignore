@@ -132,3 +132,4 @@ dmypy.json
 .metadata_never_index
 *.zip
 *#auto_saved_files#
+**/streamdekc-gerber/
