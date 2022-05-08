@@ -133,3 +133,4 @@ dmypy.json
 *.zip
 *#auto_saved_files#
 **/streamdekc-gerber/
+*.FCStd1
